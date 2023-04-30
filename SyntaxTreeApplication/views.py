@@ -2,20 +2,21 @@ from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
-from SyntaxTreeApplication.syntax_tree import tree_to_string, paraphrase as phr
+from SyntaxTreeApplication.models import TreeParaphrase, tree_to_string
 
 
 def paraphrase(request):
-    tree = request.GET.get('tree', '')
+    tree_str = request.GET.get('tree', '')
     limit = request.GET.get('limit', 20)
 
-    if not tree:
+    if not tree_str:
         return HttpResponseBadRequest('Tree parameter is required')
     if type(limit) != int and not limit.isnumeric():
         limit = 20
 
     try:
-        res = phr(tree, int(limit))
+        tree = TreeParaphrase(tree_str, int(limit))
+        res = tree.paraphrase()
     except ValueError:
         return HttpResponseBadRequest('Bad request, invalid string')
 
